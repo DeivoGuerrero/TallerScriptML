@@ -1,11 +1,15 @@
 #! /usr/bin/python
+# -*- coding: utf-8 -*-
 import requests
 import json
 import os
+import time
+
+find_site = False
+mi_lista = []
 
 print ("Programa que identifica todos los items de un vendedor...")
 in_site = raw_input("Ingrese el ID del Site: ")
-find_site = False
 
 # Cargamos los Sites Disponibles
 url = 'https://api.mercadolibre.com/sites/' + in_site.upper()
@@ -18,8 +22,7 @@ else:
 if find_site:
     url = 'https://api.mercadolibre.com/users/'
     in_seller = raw_input("Ingrese el ID del vendedor: ")
-    # BORRAR ESTO
-    in_seller = "81644614"
+
     r_seller = requests.get(url + in_seller)
     if r_seller.ok:
         url = 'https://api.mercadolibre.com/sites/' + in_site.upper() + '/search?seller_id=' + in_seller 
@@ -28,8 +31,6 @@ if find_site:
         if r.ok:
             result = json.loads(r.text)
             for result in result['results']:
-                #mi_json = result.json()
-                print "KEY: "
                 n_id = result['id']
                 n_title = result['title']
                 n_category_id = result['category_id']
@@ -39,17 +40,10 @@ if find_site:
                 if r.ok:
                     result = json.loads(r.text)
                     n_name_category = result['name'] 
-                    print "ID: " + n_id + " - TITLE: " + n_title + " - ID_CATEGORY: " + n_category_id + " - NAME_CATEGORY: " + n_name_category
-                #print result
-                #print mi_json['id']
-            mi_json = r.json()
-            #print mi_json
-
-
-            """
-            mi_json = json.loads(r.text)
-            for m_results in mi_json:
-                print m_results.content
-            """
+                    mi_lista.append('id=' + n_id + '::title=' + n_title + '::category_id=' + n_category_id + '::name_category=' + n_name_category)
+            for item in mi_lista:
+                file = open("items_" + in_site.upper() + in_seller.upper() + "_" + time.strftime("%c") + ".log", "w")
+                file.write( item + os.linesep)
+                file.close()
     else:
         print ('Vendedor no encontrado')
